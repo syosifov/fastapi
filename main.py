@@ -1,9 +1,14 @@
 from typing import List
+import os
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse
 
 app = FastAPI()
+
+PROTOKOL = os.getenv("PROTOKOL",default="ws://")
+DOMAIN = os.getenv("RAILWAY_PUBLIC_DOMAIN",default="localhost:8000")
+print(PROTOKOL,DOMAIN)
 
 html = """
 <!DOCTYPE html>
@@ -23,7 +28,7 @@ html = """
         <script>
             var client_id = Date.now()
             document.querySelector("#ws-id").textContent = client_id;
-            var ws = new WebSocket(`ws://localhost:8000/ws/${client_id}`);
+            var ws = new WebSocket(`"""+PROTOKOL+DOMAIN+"""/ws/${client_id}`);
             ws.onmessage = function(event) {
                 var messages = document.getElementById('messages')
                 var message = document.createElement('li')
@@ -42,7 +47,7 @@ html = """
 </html>
 """
 
-
+print(html)
 class ConnectionManager:
     def __init__(self):
         self.active_connections: List[WebSocket] = []
