@@ -1,8 +1,17 @@
-from typing import List
+from typing import List, Union
 import os
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse
+from fastapi import (
+    Cookie,
+    Depends,
+    FastAPI,
+    Query,
+    WebSocket,
+    WebSocketDisconnect,
+    WebSocketException,
+    status,
+)
 
 app = FastAPI()
 
@@ -75,17 +84,37 @@ async def get():
     # return HTMLResponse(html)
     return {"messsage": "Hello"}
 
+async def get_cookie_or_token(
+    websocket: WebSocket,
+    session: Union[str, None] = Cookie(default=None),
+    token: Union[str, None] = Query(default=None),
+):
+    if session is None and token is None:
+        raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION)
+    return session or token
 
-@app.websocket("/ws/{pub_id}/{client_id}")
-async def websocket_endpoint(websocket: WebSocket, client_id: int, pub_id: int):
-    manager = pubs.get(pub_id, ConnectionManager())
+
+
+@app.websocket("/items/{item_id}/ws")
+async def websocket_endpoint(
+    websocket: WebSocket,
+    item_id: str,
+    q: Union[int, None] = None,
+    cookie_or_token: str = Depends(get_cookie_or_token),
+):
+    pub_id = item_id
+    client_id = cookie_or_token
+    manager = pubs.get(pub_id)
+    if manager == None:
+        manager = ConnectionManager()
+        pubs[pub_id] = manager
     await manager.connect(websocket)
     try:
         while True:
             data = await websocket.receive_text()
-            await manager.send_personal_message(f"You wrote: {data}", websocket)
-            await manager.broadcast(f"Client #{client_id} says: {data}")
+            await pubs.get(pub_id).send_personal_message(f"You wrote: {data}", websocket)
+            await pubs.get(pub_id).broadcast(f"Client #{client_id} says: {data}")
     except WebSocketDisconnect:
-        manager.disconnect(websocket)
-        await manager.broadcast(f"Client #{client_id} left the chat")
+        pubs.get(pub_id).disconnect(websocket)
+        await pubs.get(pub_id).broadcast(f"Client #{client_id} left the chat")
 
