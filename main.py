@@ -7,7 +7,7 @@ from fastapi.responses import HTMLResponse
 app = FastAPI()
 
 PROTOKOL = os.getenv("PROTOKOL",default="ws://")
-DOMAIN = os.getenv("RAILWAY_PUBLIC_DOMAIN",default="localhost:8000")
+DOMAIN = os.getenv("RAILWAY_PUBLIC_DOMAIN",default="localhost:8001")
 print(PROTOKOL,DOMAIN)
 
 html = """
