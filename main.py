@@ -47,7 +47,7 @@ html = """
 </html>
 """
 
-print(html)
+pubs = {}
 class ConnectionManager:
     def __init__(self):
         self.active_connections: List[WebSocket] = []
@@ -67,16 +67,18 @@ class ConnectionManager:
             await connection.send_text(message)
 
 
-manager = ConnectionManager()
+# manager = ConnectionManager()
 
 
 @app.get("/")
 async def get():
-    return HTMLResponse(html)
+    # return HTMLResponse(html)
+    return {"messsage": "Hello"}
 
 
-@app.websocket("/ws/{client_id}")
-async def websocket_endpoint(websocket: WebSocket, client_id: int):
+@app.websocket("/ws/{pub_id}/{client_id}")
+async def websocket_endpoint(websocket: WebSocket, client_id: int, pub_id: int):
+    manager = pubs.get(pub_id, ConnectionManager())
     await manager.connect(websocket)
     try:
         while True:

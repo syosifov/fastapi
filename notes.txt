@@ -1,3 +1,5 @@
+pip install fastapi
+pip install hypercorn
 pip install websockets
 
 
