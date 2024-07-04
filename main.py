@@ -1,16 +1,20 @@
 from typing import List, Union
 import os
+import time
 
-from fastapi.responses import HTMLResponse
+
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi import (
+    Body,
     Cookie,
     Depends,
     FastAPI,
+    HTTPException,
     Query,
+    status,
     WebSocket,
     WebSocketDisconnect,
     WebSocketException,
-    status,
 )
 
 app = FastAPI()
@@ -117,4 +121,25 @@ async def websocket_endpoint(
     except WebSocketDisconnect:
         pubs.get(pub_id).disconnect(websocket)
         await pubs.get(pub_id).broadcast(f"Client #{client_id} left the chat")
+
+class Message:
+    pub_id: str
+    message: str
+
+
+@app.post("/message")
+async def message(m = Body()):
+    pub_id = m.get("pub_id")
+    print(m)
+    print(pub_id)
+    manager = pubs.get(pub_id)
+    if manager == None:
+        raise HTTPException(status_code=404, detail='Item not found')
+    seconds = str(time.time())
+    await manager.broadcast(seconds)
+    return seconds
+    
+
+
+
 

@@ -1,0 +1,84 @@
+@protocol = http
+# @host =  192.168.1.5:8001
+# @host =  192.168.100.6:8001
+# @host =  192.168.1.7:8001
+@host =  localhost:8001
+@server = {{protocol}}://{{host}}/
+
+
+### message
+POST {{protocol}}://{{host}}/message
+content-type: application/json
+
+{
+    "pub_id": "p1",
+    "message": 
+    [
+    {
+        "id": 1,
+        "name": "H01",
+        "status": 6,
+        "last_served_at": "2024-06-15T07:24:40.479761",
+        "is_listening": true,
+        "is_open": true
+    },
+    {
+        "id": 2,
+        "name": "H02",
+        "status": 0,
+        "last_served_at": null,
+        "is_listening": true,
+        "is_open": true
+    },
+    {
+        "id": 3,
+        "name": "H03",
+        "status": 0,
+        "last_served_at": null,
+        "is_listening": false,
+        "is_open": false
+    },
+    {
+        "id": 8,
+        "name": "H04",
+        "status": 0,
+        "last_served_at": null,
+        "is_listening": false,
+        "is_open": true
+    },
+    {
+        "id": 9,
+        "name": "H05",
+        "status": 0,
+        "last_served_at": null,
+        "is_listening": true,
+        "is_open": true
+    },
+    {
+        "id": 10,
+        "name": "H06",
+        "status": 0,
+        "last_served_at": null,
+        "is_listening": true,
+        "is_open": true
+    }
+    ]
+}
+
+
+### message2
+POST {{protocol}}://{{host}}/message
+content-type: application/json
+
+{
+    "pub_id": "p1"
+}
+
+
+### message3
+POST {{protocol}}://{{host}}/message
+content-type: application/json
+
+{
+    "pub_id": "p2"
+}
