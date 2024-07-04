@@ -6,8 +6,8 @@
     <body>
         <h1>WebSocket Chat</h1>
         <form action="" onsubmit="sendMessage(event)">
-            <label>Pub ID: <input type="text" id="itemId" autocomplete="off" value="p1"/></label>
-            <label>User ID: <input type="text" id="token" autocomplete="off" value="u1"/></label>
+            <label>Pub ID: <input type="text" id="pubId" autocomplete="off" value="1"/></label>
+            <label>User ID: <input type="text" id="waiter" autocomplete="off" value="p1u1"/></label>
             <button onclick="connect(event)">Connect</button>
             <hr>
             <label>Message: <input type="text" id="messageText" autocomplete="off"/></label>
@@ -18,9 +18,11 @@
         <script>
             var ws = null;
             function connect(event) {
-                var itemId = document.getElementById("itemId")
-                var token = document.getElementById("token")
-                ws = new WebSocket("ws://localhost:8001/items/" + itemId.value + "/ws?token=" + token.value);
+                var pubId = document.getElementById("pubId")
+                var waiter = document.getElementById("waiter")
+                var url = "ws://127.0.0.1:8001/pubs/" + pubId.value + "/ws?waiter=" + waiter.value
+                console.log(url);
+                ws = new WebSocket(url);
                 ws.onmessage = function(event) {
                     var messages = document.getElementById('messages')
                     var message = document.createElement('li')

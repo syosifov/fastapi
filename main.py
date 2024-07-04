@@ -99,14 +99,14 @@ async def get_cookie_or_token(
 
 
 
-@app.websocket("/items/{item_id}/ws")
+@app.websocket("/pubs/{pub_id}/ws")
 async def websocket_endpoint(
     websocket: WebSocket,
-    item_id: str,
+    pub_id: str,
     q: Union[int, None] = None,
     cookie_or_token: str = Depends(get_cookie_or_token),
 ):
-    pub_id = item_id
+    
     client_id = cookie_or_token
     manager = pubs.get(pub_id)
     if manager == None:
