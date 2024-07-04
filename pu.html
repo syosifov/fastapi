@@ -20,7 +20,7 @@
             function connect(event) {
                 var pubId = document.getElementById("pubId")
                 var waiter = document.getElementById("waiter")
-                var url = "ws://127.0.0.1:8001/pubs/" + pubId.value + "/ws?waiter=" + waiter.value
+                var url = "ws://127.0.0.1:8001/pubs/" + pubId.value + "/ws?token=" + waiter.value
                 console.log(url);
                 ws = new WebSocket(url);
                 ws.onmessage = function(event) {
