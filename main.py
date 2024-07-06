@@ -60,7 +60,7 @@ html = """
 </html>
 """
 
-pubs = {}
+users = {}
 class ConnectionManager:
     def __init__(self):
         self.active_connections: List[WebSocket] = []
@@ -99,40 +99,37 @@ async def get_cookie_or_token(
 
 
 
-@app.websocket("/pubs/{pub_id}/ws")
+@app.websocket("/users/{usr_id}/ws")
 async def websocket_endpoint(
     websocket: WebSocket,
-    pub_id: str,
+    usr_id: str,
     q: Union[int, None] = None,
     cookie_or_token: str = Depends(get_cookie_or_token),
 ):
     
     client_id = cookie_or_token
-    manager = pubs.get(pub_id)
+    manager = users.get(usr_id)
     if manager == None:
         manager = ConnectionManager()
-        pubs[pub_id] = manager
+        users[usr_id] = manager
     await manager.connect(websocket)
     try:
         while True:
             data = await websocket.receive_text()
-            await pubs.get(pub_id).send_personal_message(f"You wrote: {data}", websocket)
-            await pubs.get(pub_id).broadcast(f"Client #{client_id} says: {data}")
+            await users.get(usr_id).send_personal_message(f"You wrote: {data}", websocket)
+            await users.get(usr_id).broadcast(f"Client #{client_id} says: {data}")
     except WebSocketDisconnect:
-        pubs.get(pub_id).disconnect(websocket)
-        await pubs.get(pub_id).broadcast(f"Client #{client_id} left the chat")
-
-class Message:
-    pub_id: str
-    message: str
+        print("Disconnecting: ", usr_id, client_id)
+        users.get(usr_id).disconnect(websocket)
+        await users.get(usr_id).broadcast(f"Client #{client_id} left the chat")
 
 
 @app.post("/message")
 async def message(m = Body()):
-    pub_id = m.get("pub_id")
+    usr_id = m.get("usr_id")
     print(m)
-    print(pub_id)
-    manager = pubs.get(pub_id)
+    print(usr_id)
+    manager = users.get(usr_id)
     if manager == None:
         raise HTTPException(status_code=404, detail='Item not found')
     seconds = str(time.time())
