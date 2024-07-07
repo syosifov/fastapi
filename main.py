@@ -99,42 +99,49 @@ async def get_cookie_or_token(
 
 
 
-@app.websocket("/users/{usr_id}/ws")
+@app.websocket("/users/{username}/ws")
 async def websocket_endpoint(
     websocket: WebSocket,
-    usr_id: str,
+    username: str,
     q: Union[int, None] = None,
     cookie_or_token: str = Depends(get_cookie_or_token),
 ):
     
     client_id = cookie_or_token
-    manager = users.get(usr_id)
+    manager = users.get(username)
     if manager == None:
         manager = ConnectionManager()
-        users[usr_id] = manager
+        users[username] = manager
+    print("Connecting ", username)
     await manager.connect(websocket)
     try:
         while True:
             data = await websocket.receive_text()
-            await users.get(usr_id).send_personal_message(f"You wrote: {data}", websocket)
-            await users.get(usr_id).broadcast(f"Client #{client_id} says: {data}")
+            await users.get(username).send_personal_message(f"You wrote: {data}", websocket)
+            await users.get(username).broadcast(f"Client #{client_id} says: {data}")
     except WebSocketDisconnect:
-        print("Disconnecting: ", usr_id, client_id)
-        users.get(usr_id).disconnect(websocket)
-        await users.get(usr_id).broadcast(f"Client #{client_id} left the chat")
+        print("Disconnecting: ", username, client_id)
+        users.get(username).disconnect(websocket)
+        await users.get(username).broadcast(f"Client #{client_id} left the chat")
 
 
 @app.post("/message")
 async def message(m = Body()):
-    usr_id = m.get("usr_id")
-    print(m)
-    print(usr_id)
-    manager = users.get(usr_id)
-    if manager == None:
-        raise HTTPException(status_code=404, detail='Item not found')
+    usrs = m.get("users")
+    # print(usrs)
     seconds = str(time.time())
-    await manager.broadcast(seconds)
-    return seconds
+    found = False
+    for username in usrs:
+        manager = users.get(username)
+        if manager == None:
+            continue
+        found = True
+        await manager.broadcast(seconds)
+
+    if not found:
+        return JSONResponse(content={"message": "Nobody is listening"}, 
+                            status_code=status.HTTP_404_NOT_FOUND)
+    return HTMLResponse(status_code=status.HTTP_201_CREATED)
     
 
 

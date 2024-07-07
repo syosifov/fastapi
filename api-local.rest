@@ -71,7 +71,7 @@ POST {{protocol}}://{{host}}/message
 content-type: application/json
 
 {
-    "pub_id": "p1"
+    "username": "p1u1"
 }
 
 
@@ -80,5 +80,5 @@ POST {{protocol}}://{{host}}/message
 content-type: application/json
 
 {
-    "pub_id": "p2"
+    "username": "charlie"
 }
