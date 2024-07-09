@@ -21,7 +21,9 @@ app = FastAPI()
 
 PROTOKOL = os.getenv("PROTOKOL",default="ws://")
 DOMAIN = os.getenv("RAILWAY_PUBLIC_DOMAIN",default="localhost:8001")
+PORT = os.getenv('PORT',default=8001)
 print(PROTOKOL,DOMAIN)
+print("PORT",PORT)
 
 html = """
 <!DOCTYPE html>
